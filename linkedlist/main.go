@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
 
 type SinglyLinkedListNode struct {
@@ -13,14 +14,192 @@ type SinglyLinkedList struct {
 	head *SinglyLinkedListNode
 }
 
+var temp **SinglyLinkedListNode
+
+func AddTwoNumbers(head1 *SinglyLinkedListNode, head2 *SinglyLinkedListNode) *SinglyLinkedListNode {
+	var head *SinglyLinkedListNode
+	var sum1, sum2 uint64 = 0, 0
+	current1 := head1
+	current2 := head2
+	i := 0
+	for current1 != nil {
+		sum1 = sum1 + uint64(current1.data)*uint64(math.Pow10(i))
+		current1 = current1.next
+		i++
+	}
+
+	j := 0
+
+	for current2 != nil {
+		sum1 = sum2 + uint64(current2.data)*uint64(math.Pow10(j))
+		current2 = current2.next
+		j++
+	}
+
+	sum3 := sum1 + sum2
+
+	//var num int
+
+	for sum3 > 0 {
+		rem := sum3 % 10
+		head = insertNodeAtTheHead(head, int(rem))
+		//num = num*10 + rem
+
+		sum3 = sum3 / 10
+	}
+
+	head = reverse(head)
+	return head
+
+}
+
+func AddTwoNumbersOrdern(head1 *SinglyLinkedListNode, head2 *SinglyLinkedListNode) *SinglyLinkedListNode {
+	var start *SinglyLinkedListNode
+	temp := start
+
+	var carry int
+
+	current1, current2 := head1, head2
+
+	for current1 != nil || current2 != nil || carry != 0 {
+
+		sum := 0
+
+		if current1 != nil {
+			sum += current1.data
+			current1 = current1.next
+		}
+
+		if current2 != nil {
+			sum += current2.data
+			current2 = current2.next
+		}
+
+		sum = sum + carry
+
+		carry = sum / 10
+
+		node := &SinglyLinkedListNode{
+			data: sum % 10,
+		}
+
+		temp.next = node
+		temp = temp.next
+
+	}
+
+	return start.next
+}
+
 func printSinglyLinkedList(head *SinglyLinkedListNode) {
 
 	current := head
 
 	for current != nil {
-		fmt.Println(current.data)
+		fmt.Printf("%v  ", current.data)
 		current = current.next
 	}
+
+	fmt.Println()
+}
+
+func DeleteNode(node *SinglyLinkedListNode) {
+
+	node.data = node.next.data
+	node.next = node.next.next
+
+}
+
+func HasCycle(head *SinglyLinkedListNode) bool {
+
+	m := make(map[*SinglyLinkedListNode]bool)
+
+	current1 := head
+
+	for current1 != nil {
+
+		if _, ok := m[current1]; !ok {
+			m[current1] = true
+		} else {
+			return true
+		}
+
+		current1 = current1.next
+
+	}
+
+	return false
+
+}
+
+func HasCycleOrderN(head *SinglyLinkedListNode) bool {
+
+	slow := head
+	fast := head
+
+	for fast != nil {
+		slow = slow.next
+		fast = fast.next.next
+
+		if slow == fast {
+			return true
+		}
+	}
+
+	return false
+
+}
+
+func getIntersectionNode(headA, headB *SinglyLinkedListNode) *SinglyLinkedListNode {
+	current1 := headA
+	current2 := headB
+
+	for current1 != nil {
+
+		for current2 != nil {
+
+			if current1 == current2 {
+				return current1
+			}
+
+			current2 = current2.next
+
+		}
+		current2 = headB
+		current1 = current1.next
+	}
+
+	return nil
+
+}
+
+func getIntersectionNodeOrderN(headA, headB *SinglyLinkedListNode) *SinglyLinkedListNode {
+
+	if headA == nil || headB == nil {
+		return nil
+	}
+
+	d1 := headA
+	d2 := headB
+
+	for d1 != d2 {
+
+		if d1 == nil {
+			d1 = headB
+		} else {
+			d1 = d1.next
+		}
+
+		if d2 == nil {
+			d2 = headA
+		} else {
+			d2 = d2.next
+		}
+
+	}
+
+	return d1
+
 }
 
 func insertNodeAtTheHead(head *SinglyLinkedListNode, data int) *SinglyLinkedListNode {
@@ -45,6 +224,13 @@ func insertNodeAtTheTail(head *SinglyLinkedListNode, data int) *SinglyLinkedList
 	}
 
 	current.next = node
+
+	if node.data == 6 {
+		temp = &node
+		fmt.Println(temp)
+
+	}
+
 	return head
 }
 func reversePrint(head *SinglyLinkedListNode) {
@@ -79,6 +265,78 @@ func reverse(head *SinglyLinkedListNode) *SinglyLinkedListNode {
 	head = temp
 
 	return head
+
+}
+
+func reverseKGroup(head *SinglyLinkedListNode, k int) *SinglyLinkedListNode {
+
+	if head == nil || k == 1 {
+		return head
+	}
+
+	var dummy *SinglyLinkedListNode = &SinglyLinkedListNode{data: 0}
+
+	dummy.next = head
+
+	var cur, next, prev *SinglyLinkedListNode
+
+	cur = dummy
+	next = dummy
+	prev = dummy
+
+	var count int = 0
+	cur = head
+	for cur != nil {
+		count++
+		cur = cur.next
+
+	}
+
+	cur = dummy
+
+	for count >= k {
+		cur = prev.next
+		next = cur.next
+
+		for i := 1; i < k; i++ {
+			cur.next = next.next
+			next.next = prev.next
+			prev.next = next
+			next = cur.next
+		}
+
+		prev = cur
+		count = count - k
+	}
+
+	return dummy.next
+
+}
+
+func isPalindrome(head *SinglyLinkedListNode) bool {
+
+	slow := head
+	fast := head
+
+	for fast != nil && fast.next != nil {
+		fast = fast.next.next
+		slow = slow.next
+	}
+
+	slow = reverse(slow)
+
+	fast = head
+
+	for slow != nil {
+		if slow.data != fast.data {
+			return false
+		}
+
+		slow = slow.next
+		fast = fast.next
+	}
+
+	return true
 
 }
 
@@ -278,6 +536,62 @@ func findTheMiddleOfLinkedList(head *SinglyLinkedListNode) *SinglyLinkedListNode
 
 }
 
+func detectCycle(head *SinglyLinkedListNode) *SinglyLinkedListNode {
+
+	//T.C Order(n)
+	//S.C order(n)
+
+	m := make(map[*SinglyLinkedListNode]int)
+
+	current := head
+
+	for current != nil {
+
+		if _, ok := m[current]; !ok {
+
+			m[current] = current.data
+
+		} else {
+			return current
+		}
+
+		current = current.next
+	}
+
+	return nil
+
+}
+
+func detectCycleOrdern(head *SinglyLinkedListNode) *SinglyLinkedListNode {
+
+	if head == nil || head.next == nil {
+		return nil
+	}
+
+	slow := head
+	fast := head
+	entry := head
+
+	for fast != nil && fast.next != nil {
+		slow = slow.next
+		fast = fast.next.next
+
+		if slow == fast {
+
+			for slow != entry {
+				slow = slow.next
+				entry = entry.next
+			}
+
+			return entry
+
+		}
+	}
+
+	return nil
+
+}
+
 func findTheMiddleOfLinkedListOrdern(head *SinglyLinkedListNode) *SinglyLinkedListNode {
 	// we solve it using the tortoise method.
 	// we initially make fast and slow point to the head.
@@ -298,24 +612,83 @@ func findTheMiddleOfLinkedListOrdern(head *SinglyLinkedListNode) *SinglyLinkedLi
 }
 func main() {
 
-	list := SinglyLinkedList{
+	/*
+			[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+		[5,6,4]
+
+	*/
+
+	/*
+		     [-1,-7,7,-4,19,6,-9,-5,-2,-5]
+		6
+	*/
+	list1 := SinglyLinkedList{
 		head: &SinglyLinkedListNode{
-			data: 1,
+			data: -1,
 		},
 	}
 
-	list.head = insertNodeAtTheTail(list.head, 2)
+	// for i := 0; i < 30; i++ {
+	// 	list1.head = insertNodeAtTheTail(list1.head, 0)
+	// }
 
-	list.head = insertNodeAtTheTail(list.head, 3)
+	list1.head = insertNodeAtTheTail(list1.head, -7)
+	list1.head = insertNodeAtTheTail(list1.head, 7)
+	list1.head = insertNodeAtTheTail(list1.head, -4)
+	list1.head = insertNodeAtTheTail(list1.head, 19)
+	list1.head = insertNodeAtTheTail(list1.head, 6)
+	fmt.Println("=====================================")
+	list1.head = insertNodeAtTheTail(list1.head, -9)
+	list1.head = insertNodeAtTheTail(list1.head, -5)
+	list1.head = insertNodeAtTheTail(list1.head, -2)
+	list1.head = insertNodeAtTheTail(list1.head, -5)
+	fmt.Println("=====================================")
 
-	list.head = insertNodeAtTheTail(list.head, 4)
-	list.head = insertNodeAtTheTail(list.head, 5)
+	curr := list1.head
 
-	printSinglyLinkedList(list.head)
+	for curr.next != nil {
+		curr = curr.next
+	}
 
-	list.head = findTheMiddleOfLinkedListOrdern(list.head)
+	curr.next = *temp
 
-	printSinglyLinkedList(list.head)
+	node := detectCycle(list1.head)
+
+	fmt.Println(node)
+
+	//list1.head = insertNodeAtTheTail(list1.head, 3)
+
+	//printSinglyLinkedList(list1.head)
+
+	//list1.head = findTheMiddleOfLinkedListOrdern(list1.head)
+
+	// printSinglyLinkedList(list1.head)
+	// fmt.Println("==============================")
+
+	// list2 := SinglyLinkedList{
+	// 	head: &SinglyLinkedListNode{
+	// 		data: 5,
+	// 	},
+	// }
+
+	// list2.head = insertNodeAtTheTail(list2.head, 6)
+
+	// list2.head = insertNodeAtTheTail(list2.head, 4)
+
+	// printSinglyLinkedList(list2.head)
+	// fmt.Println("==============================")
+
+	// head3 := AddTwoNumbers(list1.head, list2.head)
+
+	printSinglyLinkedList(list1.head)
+
+	// list1.head = reverseKGroup(list1.head, 3)
+
+	// printSinglyLinkedList(list1.head)
+
+	// list.head = findTheMiddleOfLinkedListOrdern(list.head)
+
+	// printSinglyLinkedList(list.head)
 
 	// fmt.Println("length of the list", length(list.head))
 
