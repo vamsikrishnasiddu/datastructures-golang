@@ -51,5 +51,5 @@ func main() {
 
 	//preorder(root)
 	//inorder(root)
-	postorder(root)
+	preorder(root)
 }
